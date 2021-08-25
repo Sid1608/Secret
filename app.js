@@ -2,26 +2,78 @@
 const express= require ("express");
 const bodyParser= require("body-parser");
 const ejs=require("ejs");
-const app = express();
+const mongoose =require("mongoose")
 
+/**App setup */
+const app = express();
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
     extended:true
 }));
 
+/**Setting up Connection */
+mongoose.connect("mongodb://localhost:27017/userDB",{useNewUrlParser: true});
 
 
+/**User-Schema */
+const userSchema={
+    email: String,
+    password:String
+};
+const User=new mongoose.model("User",userSchema);
+
+/**Home Route */
 app.get("/",function(req,res){
     res.render("home");
 });
+
+/**get route for login page */
 app.get("/login",function(req,res){
     res.render("login");
 });
+/**get route for register page */
 app.get("/register",function(req,res){
     res.render("register");
 });
 
+/**post route for register page */
+app.post("/register",function(req,res){
+    const newUser=new User({
+        email:req.body.username,
+        password:req.body.password
+    })
+    newUser.save(function(err){
+        if(err){
+            console.log(err);
+        }else{
+            res.render("secrets");
+        }
+    });
+});
+
+/**post route for login page */
+app.post("/login",function(req,res){
+    const username= req.body.username;
+    const password=req.body.password;
+
+    User.findOne({email:username},function(err,foundUser){
+        if(err){
+            console.log(err);
+        }else{
+            if(foundUser){
+                console.log(foundUser.password );
+                console.log(password);
+                if(foundUser.password === password){
+                    res.render("secrets");
+                }
+            }
+        }
+    });
+
+})
+
+/**Server listening to port 3000 */
 app.listen(3000,function(){
     console.log("Server started on port 3000.");
-});
+})
