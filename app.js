@@ -73,7 +73,7 @@ app.post("/login",function(req,res){
 
 })
 
-/**Server listening to port 3000 */
+/**Server listening on port 3000 */
 app.listen(3000,function(){
     console.log("Server started on port 3000.");
 })
